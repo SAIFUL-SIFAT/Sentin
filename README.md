@@ -26,6 +26,34 @@ Sentin is built on the principle of zero-upload processing.
    ```
 3. Open `http://localhost:3000` in your browser.
 
+## Project Structure
+```text
+sentin/
+├── src/
+│   ├── components/
+│   │   ├── ui/
+│   │   ├── JSONFormatter.tsx
+│   │   ├── QRCodeGen.tsx
+│   │   ├── PDFSplit.tsx
+│   │   ├── MarkdownEditor.tsx
+│   │   ├── DiffChecker.tsx
+│   │   ├── ImageToPDF.tsx
+│   │   ├── PasswordGen.tsx
+│   │   ├── PDFMerge.tsx
+│   │   ├── app-sidebar.tsx
+│   │   ├── PDFViewer.tsx
+│   │   ├── WordEditor.tsx
+│   │   ├── ImageCompressor.tsx
+│   │   ├── HashGenerator.tsx
+│   │   └── CodeEditor.tsx
+│   ├── lib/
+│   ├── App.tsx
+│   └── main.tsx
+├── package.json
+├── vite.config.ts
+└── README.md
+```
+
 ## Built With
 - React & Vite
 - Tailwind CSS (Brutalist/Editorial Aesthetic)
