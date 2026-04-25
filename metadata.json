@@ -1,0 +1,6 @@
+{
+  "name": "Sentin",
+  "description": "A privacy-first, browser-based office suite. Edit documents, merge PDFs, and write code entirely locally with no tracking or uploads.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
