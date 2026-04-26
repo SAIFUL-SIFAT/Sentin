@@ -1,8 +1,23 @@
-# Sentin
+# 🔒 Sentin — Privacy-First Browser Tools
 
 <div align="center">
-  <p><strong>A professional-grade, privacy-first tool ecosystem.</strong></p>
-  <p>Edit documents, process PDFs, and manage data — all locally in your browser with zero data exfiltration.</p>
+  <img src="src/app/icon.svg" width="80" height="80" alt="Sentin Logo" />
+  <p><strong>A professional-grade, macOS-inspired productivity ecosystem that runs 100% locally.</strong></p>
+
+  [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+  [![Next.js](https://img.shields.io/badge/Framework-Next.js-black?logo=next.js)](https://nextjs.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-blue?logo=tailwind-css)](https://tailwindcss.com/)
+  [![GitHub stars](https://img.shields.io/github/stars/SAIFUL-SIFAT/Sentin.svg?style=social)](https://github.com/SAIFUL-SIFAT/Sentin/stargazers)
+  [![GitHub forks](https://img.shields.io/github/forks/SAIFUL-SIFAT/Sentin.svg?style=social)](https://github.com/SAIFUL-SIFAT/Sentin/network/members)
+
+  <p>Edit documents, process PDFs, convert media, and manage security tools — all in your browser sandbox with <b>zero data exfiltration</b>.</p>
+
+  <a href="https://sentin.vercel.app"><strong>Explore the Demo »</strong></a>
+  <br />
+  <br />
+  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSAIFUL-SIFAT%2FSentin">
+    <img src="https://vercel.com/button" alt="Deploy with Vercel" />
+  </a>
 </div>
 
 ---
@@ -11,43 +26,37 @@
 
 Sentin is built on the absolute principle of **zero-upload processing**. 
 
-- **100% Local Execution:** All computations, document parsing, and file modifications are performed securely inside your browser's sandbox.
+- **100% Local Execution:** All computations, document parsing, and file modifications are performed securely inside your browser's sandbox using WebAssembly and client-side APIs.
 - **Zero Data Exfiltration:** Your files, passwords, and tokens never leave your device. We do not use servers to process your data.
 - **No Tracking:** No accounts, no cookies, no telemetry. Your workflow remains completely anonymous and private.
+- **Offline Capable:** Once loaded, the tools function entirely without an internet connection.
 
-## ✨ Core Ecosystem
+## ✨ Tool Ecosystem
 
-Sentin provides a beautifully designed, macOS-inspired interface housing a powerful suite of developer and productivity tools.
+Sentin provides a beautifully designed interface housing a powerful suite of utilities:
 
 ### 📝 Documents
-- **Word Editor:** Advanced rich text editing with `.docx` import/export capabilities, completely offline.
-- **Markdown Editor:** Professional markdown environment with real-time preview and export.
+- **Word Editor:** Advanced rich text editing with `.docx` import/export, powered by `Tiptap`.
+- **Markdown Editor:** Professional markdown environment with real-time preview and GFM support.
 
 ### 📄 PDF Suite
-- **Viewer & Nav:** Securely view and navigate sensitive PDF documents.
-- **Merge & Split:** Combine multiple documents or slice pages without uploading them to sketchy third-party sites.
-- **Reorder Pages:** Visually drag and drop PDF pages to reorganize documents.
-- **Image to PDF:** Convert physical scans and images to compiled PDF documents.
+- **Merge & Split:** Combine documents or extract pages locally using `pdf-lib`.
+- **Reorder Pages:** Visually reorganize PDF pages with drag-and-drop.
+- **Image to PDF:** Convert scans and photos into professional PDF documents.
 
 ### 🖼️ Media
-- **Image Compressor:** Privacy-first image optimization utilizing local Canvas API processing.
-- **Format Converter:** Instantly cross-convert images between JPEG, PNG, and WebP.
-- **Image Resizer:** Pixel-perfect image scaling with aspect ratio locking.
+- **Image Compressor:** Lossless optimization utilizing local Canvas API processing.
+- **Format Converter:** Cross-convert between JPEG, PNG, and WebP instantly.
 - **QR Generator:** Create secure, customizable QR codes offline.
 
 ### 🔐 Security
-- **Password Generator:** Generate cryptographically strong, secure passwords locally.
-- **Hash Generator & Analyzer:** Generate and identify hash types (MD5, SHA-256) and audit their security strength.
-- **JWT Decoder:** Deeply inspect JSON Web Tokens locally to verify claims and headers.
-
-### 💻 Developer
-- **Code Editor:** Advanced code editor with syntax highlighting for various languages.
-- **JSON Formatter:** Format, validate, and parse JSON structures locally.
-- **Diff Checker:** Compare text and code revisions securely without uploading proprietary code.
+- **Password Generator:** Cryptographically strong password generation.
+- **Hash Tools:** Generate and analyze MD5/SHA hashes locally.
+- **JWT Decoder:** Inspect JSON Web Tokens without exposing sensitive claims.
 
 ## 🚀 Getting Started
 
-Sentin is built with **Next.js**, **React**, and **Tailwind CSS**. 
+Sentin is built with **Next.js 15**, **React 19**, and **Tailwind CSS**.
 
 1. **Clone the repository:**
    ```bash
@@ -65,39 +74,21 @@ Sentin is built with **Next.js**, **React**, and **Tailwind CSS**.
    npm run dev
    ```
 
-4. **Launch the ecosystem:**
-   Open [http://localhost:3000](http://localhost:3000) in your browser to start using Sentin.
+4. **Open [http://localhost:3000](http://localhost:3000)** in your browser.
 
-## 🏗️ Architecture & Technologies
-
-Sentin is engineered for performance and aesthetics, utilizing a modern tech stack:
+## 🏗️ Architecture
 
 - **Framework:** Next.js (App Router)
-- **Styling:** Tailwind CSS (Dark Glassmorphism & Editorial Aesthetic)
+- **Styling:** Tailwind CSS (Glassmorphism design system)
 - **Animations:** Framer Motion
-- **Editors:** Tiptap (Rich Text), CodeMirror (Code), UIW (Markdown)
-- **PDF Processing:** `pdf-lib`
-- **Document Processing:** `docx`, `mammoth`
-
-## 📁 Project Structure
-
-```text
-sentin/
-├── src/
-│   ├── app/                 # Next.js App Router (Layouts & Pages)
-│   ├── components/          # React Components
-│   │   ├── developer/       # Code editors and developer utilities
-│   │   ├── documents/       # Word & Markdown editors
-│   │   ├── media/           # Image processors & QR tools
-│   │   ├── pdf/             # PDF manipulation suite
-│   │   ├── security/        # Cryptography & security tools
-│   │   └── ui/              # Reusable Shadcn UI & macOS dock
-│   ├── lib/                 # Utility functions
-│   └── hooks/               # Custom React hooks
-├── public/                  # Static assets
-└── package.json             # Dependencies & Scripts
-```
+- **Core Libs:** pdf-lib, docx, mammoth, tiptap, codemirror
 
 ## 📜 License
 
-This project is open-source and available under the MIT License.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  Built with ❤️ for privacy. Star this repo if you find it useful!
+</div>
