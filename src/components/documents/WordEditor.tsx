@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import '@tiptap/extension-image';
 import mammoth from 'mammoth';
-import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType } from 'docx';
 import { downloadBlob } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
@@ -117,74 +117,138 @@ export default function WordEditor() {
   });
 
   /* ── Export DOCX ────────────────────────────────────── */
-  const IS_IMAGE = (type: string) => type === 'image' || type === 'resizableImage';
+  const getDocxImageType = (src: string): 'png' | 'jpg' | 'gif' | 'bmp' => {
+    const match = src.match(/^data:image\/(\w+);/);
+    if (!match) return 'png';
+    const mime = match[1].toLowerCase();
+    if (mime === 'jpeg' || mime === 'jpg') return 'jpg';
+    if (mime === 'gif') return 'gif';
+    if (mime === 'bmp') return 'bmp';
+    return 'png'; // webp → png (docx doesn't support webp)
+  };
 
-  const makeImageParagraph = (imgNode: any): any | null => {
-    if (!imgNode.attrs.src?.startsWith('data:')) return null;
-    try {
-      const buffer = base64ToUint8Array(imgNode.attrs.src);
-      const width  = imgNode.attrs.width  ? parseInt(imgNode.attrs.width)  : 500;
-      const height = imgNode.attrs.height ? parseInt(imgNode.attrs.height) : 375;
-      return new Paragraph({
-        children: [new ImageRun({ data: buffer, transformation: { width, height }, type: 'png' } as any)],
-      });
-    } catch (e) {
-      console.error('Failed to export image node', e);
-      return null;
+  // Load a real Image to get intrinsic pixel dimensions (not CSS display size)
+  const getIntrinsicSize = (src: string): Promise<{ w: number; h: number }> =>
+    new Promise(resolve => {
+      const img = new Image();
+      img.onload  = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve({ w: 600, h: 400 });
+      img.src = src;
+    });
+
+  // Scale down only if wider than page content area, never upscale
+  const capToPageWidth = (w: number, h: number, maxW = 624) => {
+    if (w <= maxW) return { width: w, height: h };
+    const scale = maxW / w;
+    return { width: maxW, height: Math.round(h * scale) };
+  };
+
+  // Read text-align from DOM element and map to docx AlignmentType
+  const getAlignmentFromEl = (el: Element | null) => {
+    const align = el?.getAttribute('style')?.match(/text-align:\s*(\w+)/)?.[1]
+      || (el as HTMLElement)?.style?.textAlign;
+    switch (align) {
+      case 'center':  return AlignmentType.CENTER;
+      case 'right':   return AlignmentType.RIGHT;
+      case 'justify': return AlignmentType.BOTH;
+      default:        return AlignmentType.LEFT;
     }
   };
 
   const handleExport = async () => {
     if (!editor) return;
-    const json = editor.getJSON();
+
+    // Parse from HTML — immune to TipTap node-type naming differences across extensions
+    const dom = new DOMParser().parseFromString(editor.getHTML(), 'text/html');
     const children: any[] = [];
 
-    json.content?.forEach(node => {
-      if (node.type === 'paragraph' || node.type === 'heading') {
-        // Walk inline children; whenever we hit an image, flush text first then
-        // emit the image as its own standalone paragraph.
-        let pendingRuns: any[] = [];
-
-        node.content?.forEach(childNode => {
-          if (childNode.type === 'text') {
-            const n = childNode as any;
-            pendingRuns.push(new TextRun({
-              text: n.text || '',
-              bold:        n.marks?.some((m: any) => m.type === 'bold'),
-              italics:     n.marks?.some((m: any) => m.type === 'italic'),
-              underline:   n.marks?.some((m: any) => m.type === 'underline') ? {} : undefined,
-              strike:      n.marks?.some((m: any) => m.type === 'strike'),
-              superScript: n.marks?.some((m: any) => m.type === 'superscript'),
-              subScript:   n.marks?.some((m: any) => m.type === 'subscript'),
-            }));
-          } else if (IS_IMAGE(childNode.type!)) {
-            // Flush any accumulated text runs first
-            if (pendingRuns.length > 0) {
-              children.push(new Paragraph({ children: pendingRuns }));
-              pendingRuns = [];
-            }
-            // Image gets its own paragraph
-            const imgPara = makeImageParagraph(childNode as any);
-            if (imgPara) children.push(imgPara);
-          }
+    // Build an ImageRun paragraph; parentEl provides alignment context
+    const makeImgParagraph = async (img: HTMLImageElement, parentEl?: Element): Promise<any | null> => {
+      const src = img.src;
+      if (!src?.startsWith('data:')) return null;
+      try {
+        const buffer = base64ToUint8Array(src);
+        const imgType = getDocxImageType(src);
+        const { w, h } = await getIntrinsicSize(src);
+        const { width, height } = capToPageWidth(w, h);
+        return new Paragraph({
+          alignment: getAlignmentFromEl(parentEl ?? img.parentElement),
+          children: [new ImageRun({ data: buffer, transformation: { width, height }, type: imgType } as any)],
         });
-
-        // Flush any remaining text runs
-        children.push(new Paragraph({ children: pendingRuns.length > 0 ? pendingRuns : [new TextRun('')] }));
-
-      } else if (IS_IMAGE(node.type!)) {
-        // Top-level image block
-        const imgPara = makeImageParagraph(node as any);
-        if (imgPara) children.push(imgPara);
+      } catch (e) {
+        console.error('Image export failed', e);
+        return null;
       }
-    });
+    };
 
-    const doc = new Document({
-      sections: [{ properties: {}, children: children.length > 0 ? children : [new Paragraph({ children: [new TextRun('Empty document')] })] }],
-    });
+    const processElement = async (el: Element) => {
+      const tag = el.tagName.toLowerCase();
+
+      // Standalone <img>
+      if (tag === 'img') {
+        const p = await makeImgParagraph(el as HTMLImageElement, el.parentElement ?? undefined);
+        if (p) children.push(p);
+        return;
+      }
+
+      const imgs = Array.from(el.querySelectorAll('img'));
+
+      if (imgs.length > 0) {
+        // Elements containing images — emit each image as its own block paragraph
+        for (const img of imgs) {
+          const p = await makeImgParagraph(img as HTMLImageElement, el);
+          if (p) children.push(p);
+        }
+        // Emit surrounding text after removing img tags
+        imgs.forEach(img => img.remove());
+        const text = el.textContent?.trim();
+        if (text) children.push(new Paragraph({ children: [new TextRun(text)] }));
+        return;
+      }
+
+      // Plain text / formatted paragraph — walk child nodes preserving inline formatting
+      const runs: any[] = [];
+      el.childNodes.forEach(child => {
+        if (child.nodeType === Node.TEXT_NODE) {
+          const t = child.textContent || '';
+          if (t) runs.push(new TextRun(t));
+        } else if (child.nodeType === Node.ELEMENT_NODE) {
+          const c = child as Element;
+          const ct = c.tagName.toLowerCase();
+          runs.push(new TextRun({
+            text:        c.textContent || '',
+            bold:        ct === 'strong' || ct === 'b',
+            italics:     ct === 'em'     || ct === 'i',
+            underline:   ct === 'u' ? {} : undefined,
+            strike:      ct === 's'      || ct === 'del',
+            superScript: ct === 'sup',
+            subScript:   ct === 'sub',
+          }));
+        }
+      });
+      if (runs.length > 0) {
+        children.push(new Paragraph({ children: runs }));
+      } else if (el.textContent?.trim()) {
+        children.push(new Paragraph({ children: [new TextRun(el.textContent)] }));
+      } else {
+        children.push(new Paragraph({ children: [new TextRun('')] }));
+      }
+    };
+
+    // Sequential await — preserves document order and avoids race conditions
+    for (const child of Array.from(dom.body.children)) {
+      await processElement(child);
+    }
+
+    if (children.length === 0) {
+      children.push(new Paragraph({ children: [new TextRun('Empty document')] }));
+    }
+
+    const doc = new Document({ sections: [{ properties: {}, children }] });
     const blob = await Packer.toBlob(doc);
     downloadBlob(blob, 'document.docx');
   };
+
 
   /* ── Export HTML ─────────────────────────────────────── */
   const handleExportHTML = () => {
@@ -197,9 +261,7 @@ export default function WordEditor() {
   /* ── Print ───────────────────────────────────────────── */
   const handlePrint = () => {
     if (!editor) return;
-    const win = window.open('', '_blank');
-    if (!win) return;
-    win.document.write(`<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html>
 <head>
   <title>Print</title>
@@ -214,32 +276,25 @@ export default function WordEditor() {
 <body>
   ${editor.getHTML()}
   <script>
-    window.onload = function () {
+    window.addEventListener('load', function () {
       var images = Array.from(document.getElementsByTagName('img'));
-      if (images.length === 0) {
-        setTimeout(function () { window.print(); window.close(); }, 200);
-        return;
-      }
+      if (images.length === 0) { setTimeout(function(){ window.print(); }, 300); return; }
       var remaining = images.length;
-      function onDone() {
-        remaining--;
-        if (remaining <= 0) {
-          setTimeout(function () { window.print(); window.close(); }, 200);
-        }
-      }
-      images.forEach(function (img) {
-        if (img.complete && img.naturalWidth > 0) {
-          onDone();
-        } else {
-          img.addEventListener('load',  onDone, { once: true });
-          img.addEventListener('error', onDone, { once: true });
-        }
+      function onDone() { if (--remaining <= 0) setTimeout(function(){ window.print(); }, 300); }
+      images.forEach(function(img) {
+        if (img.complete && img.naturalWidth > 0) { onDone(); }
+        else { img.addEventListener('load', onDone, {once:true}); img.addEventListener('error', onDone, {once:true}); }
       });
-    };
+    });
   <\/script>
 </body>
-</html>`);
-    win.document.close();
+</html>`;
+    // Use Blob URL — document.write() silently truncates large base64 data URIs in Chrome/Safari
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Revoke after generous delay so the window has finished loading
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
 
   /* ── Clear ───────────────────────────────────────────── */
