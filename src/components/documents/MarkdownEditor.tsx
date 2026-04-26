@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
 import { Download, FileText } from 'lucide-react';
-import { downloadBlob } from '../lib/utils';
+import { downloadBlob } from '@/lib/utils';
 
 export default function MarkdownEditor() {
   const [value, setValue] = useState<string | undefined>("# New Markdown File\n\nStart writing here...");

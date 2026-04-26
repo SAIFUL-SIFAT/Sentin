@@ -29,24 +29,24 @@ import { motion, AnimatePresence, Variants } from 'motion/react';
 // --- Imports for tools ---
 import dynamic from 'next/dynamic';
 
-const WordEditor = dynamic(() => import('@/components/WordEditor'), { ssr: false });
-const MarkdownEditor = dynamic(() => import('@/components/MarkdownEditor'), { ssr: false });
-const PDFMerge = dynamic(() => import('@/components/PDFMerge'), { ssr: false });
-const PDFSplit = dynamic(() => import('@/components/PDFSplit'), { ssr: false });
-const PDFViewer = dynamic(() => import('@/components/PDFViewer'), { ssr: false });
-const ImageToPDF = dynamic(() => import('@/components/ImageToPDF'), { ssr: false });
-const CodeEditor = dynamic(() => import('@/components/CodeEditor'), { ssr: false });
-const ImageCompressor = dynamic(() => import('@/components/ImageCompressor'), { ssr: false });
-const QRCodeGen = dynamic(() => import('@/components/QRCodeGen'), { ssr: false });
-const PasswordGen = dynamic(() => import('@/components/PasswordGen'), { ssr: false });
-const HashGenerator = dynamic(() => import('@/components/HashGenerator'), { ssr: false });
-const JSONFormatter = dynamic(() => import('@/components/JSONFormatter'), { ssr: false });
-const DiffChecker = dynamic(() => import('@/components/DiffChecker'), { ssr: false });
-const ImageResizer = dynamic(() => import('@/components/ImageResizer'), { ssr: false });
-const HashAnalyzer = dynamic(() => import('@/components/HashAnalyzer'), { ssr: false });
-const ImageConverter = dynamic(() => import('@/components/ImageConverter'), { ssr: false });
-const JWTDecoder = dynamic(() => import('@/components/JWTDecoder'), { ssr: false });
-const PDFReorder = dynamic(() => import('@/components/PDFReorder'), { ssr: false });
+const WordEditor = dynamic(() => import('@/components/documents/WordEditor'), { ssr: false });
+const MarkdownEditor = dynamic(() => import('@/components/documents/MarkdownEditor'), { ssr: false });
+const PDFMerge = dynamic(() => import('@/components/pdf/PDFMerge'), { ssr: false });
+const PDFSplit = dynamic(() => import('@/components/pdf/PDFSplit'), { ssr: false });
+const PDFViewer = dynamic(() => import('@/components/pdf/PDFViewer'), { ssr: false });
+const ImageToPDF = dynamic(() => import('@/components/pdf/ImageToPDF'), { ssr: false });
+const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
+const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
+const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
+const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false });
+const HashGenerator = dynamic(() => import('@/components/security/HashGenerator'), { ssr: false });
+const JSONFormatter = dynamic(() => import('@/components/developer/JSONFormatter'), { ssr: false });
+const DiffChecker = dynamic(() => import('@/components/developer/DiffChecker'), { ssr: false });
+const ImageResizer = dynamic(() => import('@/components/media/ImageResizer'), { ssr: false });
+const HashAnalyzer = dynamic(() => import('@/components/security/HashAnalyzer'), { ssr: false });
+const ImageConverter = dynamic(() => import('@/components/media/ImageConverter'), { ssr: false });
+const JWTDecoder = dynamic(() => import('@/components/security/JWTDecoder'), { ssr: false });
+const PDFReorder = dynamic(() => import('@/components/pdf/PDFReorder'), { ssr: false });
 
 
 import MacOSDock, { DockApp } from '@/components/ui/mac-os-dock';

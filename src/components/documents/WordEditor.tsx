@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import mammoth from 'mammoth';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
-import { downloadBlob } from '../lib/utils';
+import { downloadBlob } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
 export default function WordEditor() {
