@@ -136,9 +136,9 @@ const ToolDock = ({ onOpenTool, currentView }: { onOpenTool: (v: View) => void, 
       <AnimatePresence>
         {activeCategory === cat.id && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, x: 10, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 10, scale: 0.95 }}
             className="bg-[#141414]/90 backdrop-blur-3xl border border-white/10 p-4 rounded-[28px] flex flex-col items-center gap-4 shadow-[0_25px_60px_rgba(0,0,0,0.8)] min-w-[200px]"
             onMouseEnter={() => handleMouseEnter(cat.id)}
             onMouseLeave={handleMouseLeave}
@@ -166,7 +166,7 @@ const ToolDock = ({ onOpenTool, currentView }: { onOpenTool: (v: View) => void, 
               ))}
             </div>
             {/* Triangle pointer */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#141414] border-r border-b border-white/10 rotate-45" />
+            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-[#141414] border-r border-t border-white/10 rotate-45" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -174,7 +174,7 @@ const ToolDock = ({ onOpenTool, currentView }: { onOpenTool: (v: View) => void, 
   }));
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] pointer-events-auto">
+    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] pointer-events-auto">
       <MacOSDock 
         apps={dockApps} 
         onAppClick={(id) => {
@@ -268,7 +268,7 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
 const ToolCard = ({ name, description, icon: Icon, onClick }: { name: string, description: string, icon: any, onClick: () => void }) => (
   <div 
     onClick={onClick}
-    className="group flex flex-col sm:flex-row sm:items-center justify-between p-8 lg:p-12 border-b border-border-subtle hover:bg-white/[0.02] transition-subtle cursor-pointer"
+    className="group flex flex-col sm:flex-row sm:items-center justify-between p-8 lg:p-12 lg:pr-40 border-b border-border-subtle hover:bg-white/[0.02] transition-subtle cursor-pointer pr-32"
   >
     <div className="flex items-start gap-8 mb-6 sm:mb-0">
       <div className="p-4 border border-border-subtle group-hover:border-accent/40 group-hover:bg-accent/5 transition-subtle">
@@ -312,7 +312,7 @@ const ToolList = ({ onOpenTool, filterCategory }: { onOpenTool: (v: View) => voi
   
   return (
     <div className={filterCategory ? "-mx-6 lg:-mx-12 -mt-6 lg:-mt-12" : "mt-12 border-t border-border-subtle"}>
-      <div className="px-6 lg:px-12 py-12 border-b border-border-subtle bg-white/[0.01]">
+      <div className="px-6 lg:px-12 lg:pr-40 pr-32 py-12 border-b border-border-subtle bg-white/[0.01]">
         <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-soft-white/40">
           {filterCategory ? `${categories.find(c => c.id === filterCategory)?.name} Utilities` : 'Available Utilities'}
         </span>
@@ -342,9 +342,11 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex flex-col w-full min-h-screen bg-transparent overflow-x-hidden">
+      <div className="flex flex-col w-full min-h-screen bg-transparent">
         <header className="sticky top-0 z-40 h-16 flex items-center px-6 lg:px-12 border-b border-border-subtle/30 bg-[#161616]/80 backdrop-blur-md">
-          <div className="flex-1" />
+          <div className="flex-1">
+            <span className="font-heading font-bold text-lg text-[#4ADE80] tracking-tighter">Sentin</span>
+          </div>
           <div className="flex items-center gap-6">
             <a href="https://github.com/SAIFUL-SIFAT/Sentin" target="_blank" className="text-soft-white/20 hover:text-soft-white transition-subtle">
               <Github size={18} strokeWidth={1.5} />
@@ -393,7 +395,7 @@ export default function Home() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="p-6 lg:p-12"
+                className={`p-6 lg:p-12 ${view.startsWith('category:') ? '' : 'pr-32 lg:pr-48'}`}
               >
                 <button 
                   onClick={() => setView('home')}

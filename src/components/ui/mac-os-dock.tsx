@@ -25,7 +25,7 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   openApps = [],
   className = ''
 }) => {
-  const [mouseX, setMouseX] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState<number | null>(null);
   const [currentScales, setCurrentScales] = useState<number[]>(apps.map(() => 1));
   const [currentPositions, setCurrentPositions] = useState<number[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
@@ -117,8 +117,8 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   }, [apps, calculatePositions, minScale, config]);
 
   const animateToTarget = useCallback(() => {
-    const targetScales = calculateTargetMagnification(mouseX);
-    const lerpFactor = mouseX !== null ? 0.15 : 0.08;
+    const targetScales = calculateTargetMagnification(mousePos);
+    const lerpFactor = mousePos !== null ? 0.15 : 0.08;
 
     setCurrentScales(prevScales => {
       let changed = false;
@@ -132,10 +132,10 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
       return changed ? nextScales : prevScales;
     });
 
-    if (mouseX !== null || currentScales.some((s, i) => Math.abs(s - (targetScales[i] || minScale)) > 0.001)) {
+    if (mousePos !== null || currentScales.some((s, i) => Math.abs(s - (targetScales[i] || minScale)) > 0.001)) {
       animationFrameRef.current = requestAnimationFrame(animateToTarget);
     }
-  }, [mouseX, calculateTargetMagnification, minScale, currentScales]);
+  }, [mousePos, calculateTargetMagnification, minScale, currentScales]);
 
   useEffect(() => {
     animationFrameRef.current = requestAnimationFrame(animateToTarget);
@@ -147,12 +147,12 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (dockRef.current) {
       const rect = dockRef.current.getBoundingClientRect();
-      setMouseX(e.clientX - rect.left);
+      setMousePos(e.clientY - rect.top);
     }
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    setMouseX(null);
+    setMousePos(null);
   }, []);
 
   const handleAppClick = (appId: string, index: number) => {
@@ -175,21 +175,21 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
   return (
     <div 
       ref={dockRef}
-      className={`relative flex items-end justify-center ${className}`}
+      className={`relative flex flex-col items-end justify-center ${className}`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        height: `${baseIconSize * maxScale + padding}px`,
-        padding: `0 ${padding}px ${padding/2}px ${padding}px`,
+        width: `${baseIconSize * maxScale + padding}px`,
+        padding: `${padding/2}px ${padding}px ${padding/2}px 0`,
         background: 'rgba(15, 15, 15, 0.8)',
         backdropFilter: 'blur(40px) saturate(150%)',
         borderRadius: '32px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-        width: 'fit-content'
+        height: 'fit-content'
       }}
     >
-      <div className="flex items-end gap-3 h-full px-2">
+      <div className="flex flex-col items-end gap-3 w-full py-2">
         {apps.map((app, index) => {
           const scale = currentScales[index] || 1;
           
@@ -197,15 +197,15 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
             <div
               key={app.id}
               ref={(el) => { iconRefs.current[index] = el; }}
-              className="relative cursor-pointer flex flex-col items-center justify-end group/item"
+              className="relative cursor-pointer flex flex-row items-center justify-end group/item"
               onClick={() => handleAppClick(app.id, index)}
               onMouseEnter={() => onAppHover?.(app.id, true)}
               onMouseLeave={() => onAppHover?.(app.id, false)}
               style={{
                 width: `${baseIconSize * scale}px`,
                 height: `${baseIconSize * scale}px`,
-                marginBottom: `${(scale - 1) * baseIconSize / 2.5}px`,
-                transition: 'margin-bottom 0.1s ease-out'
+                marginRight: `${(scale - 1) * baseIconSize / 2.5}px`,
+                transition: 'margin-right 0.1s ease-out'
               }}
             >
               <div className="w-full h-full flex items-center justify-center bg-white/[0.02] border border-white/5 rounded-[22%] group-hover/item:bg-white/10 group-hover/item:border-white/20 transition-all duration-300 shadow-lg relative overflow-visible">
@@ -216,12 +216,12 @@ const MacOSDock: React.FC<MacOSDockProps> = ({
               
               {openApps.includes(app.id) && (
                 <div 
-                  className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(74,222,128,0.8)] z-10"
+                  className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(74,222,128,0.8)] z-10"
                 />
               )}
 
               {app.content && (
-                <div className="absolute bottom-[calc(100%+20px)] left-1/2 -translate-x-1/2 z-[200]">
+                <div className="absolute right-[calc(100%+20px)] top-1/2 -translate-y-1/2 z-[200]">
                   {app.content}
                 </div>
               )}
