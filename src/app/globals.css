@@ -98,4 +98,179 @@
     mix-blend-mode: overlay;
     pointer-events: none;
   }
+
+  /* TipTap Editor Enhancements */
+  .tiptap {
+    > * + * { margin-top: 0.75em; }
+  }
+
+  .tiptap p.is-editor-empty:first-child::before {
+    color: rgba(255,255,255,0.15);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    font-style: italic;
+  }
+
+  .tiptap table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    overflow: hidden;
+  }
+  .tiptap td, .tiptap th {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    position: relative;
+    min-width: 80px;
+    vertical-align: top;
+    text-align: left;
+  }
+  .tiptap th {
+    background: rgba(255,255,255,0.04);
+    font-weight: 600;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.7);
+  }
+  .tiptap td { background: rgba(255,255,255,0.01); }
+  .tiptap .selectedCell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(74, 222, 128, 0.08);
+    pointer-events: none;
+  }
+
+  .tiptap ul[data-type="taskList"] {
+    list-style: none;
+    padding-left: 0;
+  }
+  .tiptap ul[data-type="taskList"] li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .tiptap ul[data-type="taskList"] li label {
+    margin-top: 3px;
+  }
+  .tiptap ul[data-type="taskList"] li label input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #555;
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    background: transparent;
+    transition: all 0.15s ease;
+  }
+  .tiptap ul[data-type="taskList"] li label input[type="checkbox"]:checked {
+    background: #4ADE80;
+    border-color: #4ADE80;
+  }
+  .tiptap ul[data-type="taskList"] li label input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #161616;
+    font-weight: bold;
+  }
+  .tiptap ul[data-type="taskList"] li[data-checked="true"] > div > p {
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+
+  .tiptap pre {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid #333;
+    padding: 16px 20px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+  .tiptap pre code {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    color: #e2e8f0;
+    background: none;
+    padding: 0;
+  }
+
+  .tiptap code {
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9em;
+    color: #4ADE80;
+  }
+
+  .tiptap a {
+    color: #4ADE80;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .tiptap a:hover { opacity: 0.8; }
+
+  .tiptap img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 4px;
+  }
+  .tiptap img.ProseMirror-selectednode {
+    outline: 2px solid #4ADE80;
+    outline-offset: 2px;
+  }
+
+  /* Image Resize Handles */
+  .tiptap .resizer {
+    display: inline-block;
+    position: relative;
+    line-height: 0;
+    vertical-align: middle;
+    margin: 4px;
+  }
+
+  .tiptap .resizer__handler {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #4ADE80;
+    border: 1px solid #161616;
+    z-index: 1;
+  }
+
+  .tiptap .resizer__handler--top-left { top: -5px; left: -5px; cursor: nwse-resize; }
+  .tiptap .resizer__handler--top-right { top: -5px; right: -5px; cursor: nesw-resize; }
+  .tiptap .resizer__handler--bottom-left { bottom: -5px; left: -5px; cursor: nesw-resize; }
+  .tiptap .resizer__handler--bottom-right { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+  .tiptap blockquote {
+    border-left: 3px solid #4ADE80;
+    padding-left: 16px;
+    margin-left: 0;
+    color: rgba(255,255,255,0.6);
+    font-style: italic;
+  }
+
+  .tiptap hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 1.5em 0;
+  }
+
+  .tiptap mark {
+    border-radius: 2px;
+    padding: 1px 3px;
+    color: #161616;
+  }
 }

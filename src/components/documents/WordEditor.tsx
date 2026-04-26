@@ -1,42 +1,107 @@
 "use client";
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { 
-  Download, 
-  Upload, 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Quote, 
-  Minus, 
-  Code, 
-  Strikethrough,
-  RotateCcw,
-  RotateCw,
-  AlignLeft
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import TColor from '@tiptap/extension-color';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Link from '@tiptap/extension-link';
+import ImageResize from 'tiptap-extension-resize-image';
+import { Table } from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import Placeholder from '@tiptap/extension-placeholder';
+import CharacterCount from '@tiptap/extension-character-count';
+import Typography from '@tiptap/extension-typography';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import FontFamily from '@tiptap/extension-font-family';
+
+import {
+  Download, Upload, Bold, Italic, List, ListOrdered, Quote, Minus, Code,
+  Strikethrough, RotateCcw, RotateCw, AlignLeft, AlignCenter, AlignRight,
+  AlignJustify, Underline as UnderlineIcon, Search, Maximize, Minimize,
+  Printer, FileDown, ListChecks, Subscript as SubIcon, Superscript as SupIcon,
+  Pilcrow,
 } from 'lucide-react';
+import '@tiptap/extension-image';
 import mammoth from 'mammoth';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { Document, Packer, Paragraph, TextRun, ImageRun } from 'docx';
 import { downloadBlob } from '@/lib/utils';
 import { useDropzone } from 'react-dropzone';
 
+// Helper to convert base64 to Uint8Array for docx
+function base64ToUint8Array(base64: string) {
+  const binaryString = window.atob(base64.split(',')[1]);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+import {
+  TBtn, TDivider, HeadingSelect, FontFamilySelect,
+  HighlightPicker, TextColorPicker, LinkButton, ImageButton,
+  TableControls, SearchReplacePanel,
+} from './EditorToolbar';
+
 export default function WordEditor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const editor = useEditor({
-    extensions: [StarterKit],
-    content: '<p>Start typing or drop a .docx file here...</p>',
+    extensions: [
+      StarterKit.configure({ heading: { levels: [1, 2, 3, 4] } }),
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Highlight.configure({ multicolor: true }),
+      TextStyle,
+      TColor,
+      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-accent underline cursor-pointer' } }),
+      ImageResize.configure({ inline: true }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      Placeholder.configure({ placeholder: 'Start typing your document…' }),
+      CharacterCount,
+      Typography,
+      Subscript,
+      Superscript,
+      TaskList,
+      TaskItem.configure({ nested: true }),
+      FontFamily,
+    ],
+    content: '',
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[600px] p-12 focus:outline-none focus:ring-1 focus:ring-accent/20 border border-border-subtle bg-white/[0.01] font-sans selection:bg-accent/30',
+        class: 'prose prose-invert max-w-none min-h-[600px] p-12 focus:outline-none border border-border-subtle bg-white/[0.01] font-sans selection:bg-accent/30',
       },
     },
   });
 
+  /* ── Keyboard shortcuts ─────────────────────────────── */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') { e.preventDefault(); setShowSearch(s => !s); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') { e.preventDefault(); handlePrint(); }
+      if (e.key === 'Escape' && isFullscreen) setIsFullscreen(false);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isFullscreen]);
+
+  /* ── Drag-drop import ───────────────────────────────── */
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file && (file.name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')) {
@@ -47,53 +112,156 @@ export default function WordEditor() {
   }, [editor]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    noClick: true,
-    accept: {
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
-    }
+    onDrop, noClick: true,
+    accept: { 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'] },
   });
+
+  /* ── Export DOCX ────────────────────────────────────── */
+  const IS_IMAGE = (type: string) => type === 'image' || type === 'resizableImage';
+
+  const makeImageParagraph = (imgNode: any): any | null => {
+    if (!imgNode.attrs.src?.startsWith('data:')) return null;
+    try {
+      const buffer = base64ToUint8Array(imgNode.attrs.src);
+      const width  = imgNode.attrs.width  ? parseInt(imgNode.attrs.width)  : 500;
+      const height = imgNode.attrs.height ? parseInt(imgNode.attrs.height) : 375;
+      return new Paragraph({
+        children: [new ImageRun({ data: buffer, transformation: { width, height }, type: 'png' } as any)],
+      });
+    } catch (e) {
+      console.error('Failed to export image node', e);
+      return null;
+    }
+  };
 
   const handleExport = async () => {
     if (!editor) return;
     const json = editor.getJSON();
-    const children: Paragraph[] = [];
+    const children: any[] = [];
 
     json.content?.forEach(node => {
       if (node.type === 'paragraph' || node.type === 'heading') {
-        const runs: TextRun[] = [];
-        node.content?.forEach(textNode => {
-          if (textNode.type === 'text') {
-            const node = textNode as any;
-            runs.push(new TextRun({
-              text: node.text || '',
-              bold: node.marks?.some((m: any) => m.type === 'bold'),
-              italics: node.marks?.some((m: any) => m.type === 'italic'),
+        // Walk inline children; whenever we hit an image, flush text first then
+        // emit the image as its own standalone paragraph.
+        let pendingRuns: any[] = [];
+
+        node.content?.forEach(childNode => {
+          if (childNode.type === 'text') {
+            const n = childNode as any;
+            pendingRuns.push(new TextRun({
+              text: n.text || '',
+              bold:        n.marks?.some((m: any) => m.type === 'bold'),
+              italics:     n.marks?.some((m: any) => m.type === 'italic'),
+              underline:   n.marks?.some((m: any) => m.type === 'underline') ? {} : undefined,
+              strike:      n.marks?.some((m: any) => m.type === 'strike'),
+              superScript: n.marks?.some((m: any) => m.type === 'superscript'),
+              subScript:   n.marks?.some((m: any) => m.type === 'subscript'),
             }));
+          } else if (IS_IMAGE(childNode.type!)) {
+            // Flush any accumulated text runs first
+            if (pendingRuns.length > 0) {
+              children.push(new Paragraph({ children: pendingRuns }));
+              pendingRuns = [];
+            }
+            // Image gets its own paragraph
+            const imgPara = makeImageParagraph(childNode as any);
+            if (imgPara) children.push(imgPara);
           }
         });
-        children.push(new Paragraph({ children: runs }));
+
+        // Flush any remaining text runs
+        children.push(new Paragraph({ children: pendingRuns.length > 0 ? pendingRuns : [new TextRun('')] }));
+
+      } else if (IS_IMAGE(node.type!)) {
+        // Top-level image block
+        const imgPara = makeImageParagraph(node as any);
+        if (imgPara) children.push(imgPara);
       }
     });
 
     const doc = new Document({
-      sections: [{
-        properties: {},
-        children: children.length > 0 ? children : [new Paragraph({ children: [new TextRun('Empty document')] })],
-      }],
+      sections: [{ properties: {}, children: children.length > 0 ? children : [new Paragraph({ children: [new TextRun('Empty document')] })] }],
     });
-
     const blob = await Packer.toBlob(doc);
     downloadBlob(blob, 'document.docx');
   };
 
+  /* ── Export HTML ─────────────────────────────────────── */
+  const handleExportHTML = () => {
+    if (!editor) return;
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Document</title><style>body{font-family:sans-serif;max-width:800px;margin:40px auto;padding:0 20px;line-height:1.6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:8px}th{background:#f5f5f5}img{display:block;max-width:100%;height:auto;margin:1em 0}</style></head><body>${editor.getHTML()}</body></html>`;
+    const blob = new Blob([html], { type: 'text/html' });
+    downloadBlob(blob, 'document.html');
+  };
+
+  /* ── Print ───────────────────────────────────────────── */
+  const handlePrint = () => {
+    if (!editor) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>Print</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.7; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #ccc; padding: 8px; }
+    img { display: block !important; max-width: 100% !important; height: auto !important; margin: 1em 0 !important; }
+    @media print { body { margin: 0; } }
+  </style>
+</head>
+<body>
+  ${editor.getHTML()}
+  <script>
+    window.onload = function () {
+      var images = Array.from(document.getElementsByTagName('img'));
+      if (images.length === 0) {
+        setTimeout(function () { window.print(); window.close(); }, 200);
+        return;
+      }
+      var remaining = images.length;
+      function onDone() {
+        remaining--;
+        if (remaining <= 0) {
+          setTimeout(function () { window.print(); window.close(); }, 200);
+        }
+      }
+      images.forEach(function (img) {
+        if (img.complete && img.naturalWidth > 0) {
+          onDone();
+        } else {
+          img.addEventListener('load',  onDone, { once: true });
+          img.addEventListener('error', onDone, { once: true });
+        }
+      });
+    };
+  <\/script>
+</body>
+</html>`);
+    win.document.close();
+  };
+
+  /* ── Clear ───────────────────────────────────────────── */
+  const handleClear = () => {
+    if (window.confirm('Clear all content?')) editor?.commands.clearContent();
+  };
+
   if (!editor) return null;
 
+  const chars = editor.storage.characterCount.characters();
+  const words = editor.storage.characterCount.words();
+
+  const wrapperClass = isFullscreen
+    ? 'fixed inset-0 z-[200] bg-[#0e0e0e] overflow-auto p-6 lg:p-12'
+    : 'max-w-5xl mx-auto';
+
   return (
-    <div className="max-w-5xl mx-auto" {...getRootProps()}>
+    <div ref={containerRef} className={wrapperClass} {...getRootProps()}>
       <input {...getInputProps()} />
-      
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-8 border-b border-border-subtle pb-8">
+
+      {/* ── Header ──────────────────────────────────────── */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 border-b border-border-subtle pb-6">
         <div>
           <h2 className="text-4xl font-heading font-bold tracking-tight mb-2">Word Editor</h2>
           <div className="flex items-center gap-4">
@@ -102,118 +270,96 @@ export default function WordEditor() {
             </span>
             <div className="w-1 h-1 rounded-full bg-soft-white/20" />
             <p className="font-mono text-[10px] uppercase text-soft-white/40 tracking-widest">
-              DOCX compatible • Local processing
+              DOCX • HTML • Print
             </p>
           </div>
         </div>
-        <div className="flex gap-4">
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="h-12 px-6 border border-border-subtle font-mono text-[10px] uppercase tracking-widest text-soft-white/60 hover:text-accent hover:border-accent/40 transition-subtle flex items-center gap-2"
-          >
-            <Upload size={14} /> Import
+        <div className="flex flex-wrap gap-3">
+          <button onClick={() => fileInputRef.current?.click()}
+            className="h-10 px-5 border border-border-subtle font-mono text-[10px] uppercase tracking-widest text-soft-white/60 hover:text-accent hover:border-accent/40 transition-subtle flex items-center gap-2">
+            <Upload size={13} /> Import
           </button>
-          <button 
-            onClick={handleExport}
-            className="h-12 px-6 bg-accent text-primary-bg font-mono text-[10px] uppercase tracking-widest font-bold hover:bg-accent/80 transition-subtle flex items-center gap-2"
-          >
-            <Download size={14} /> Export .docx
+          <button onClick={handleExport}
+            className="h-10 px-5 bg-accent text-primary-bg font-mono text-[10px] uppercase tracking-widest font-bold hover:bg-accent/80 transition-subtle flex items-center gap-2">
+            <Download size={13} /> .docx
           </button>
-        </div>
-      </div>
-
-      <div className="sticky top-16 z-30 flex flex-wrap gap-1 p-1 border border-border-subtle bg-[#0A0A0A]/95 backdrop-blur-md mb-8">
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleBold().run()} 
-          active={editor.isActive('bold')} 
-          icon={Bold} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleItalic().run()} 
-          active={editor.isActive('italic')} 
-          icon={Italic} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleStrike().run()} 
-          active={editor.isActive('strike')} 
-          icon={Strikethrough} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleCode().run()} 
-          active={editor.isActive('code')} 
-          icon={Code} 
-        />
-        
-        <div className="w-px h-6 bg-border-subtle mx-2 self-center" />
-        
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          active={editor.isActive('bulletList')} 
-          icon={List} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
-          active={editor.isActive('orderedList')} 
-          icon={ListOrdered} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().toggleBlockquote().run()} 
-          active={editor.isActive('blockquote')} 
-          icon={Quote} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().setHorizontalRule().run()} 
-          icon={Minus} 
-        />
-
-        <div className="w-px h-6 bg-border-subtle mx-2 self-center" />
-
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().undo().run()} 
-          icon={RotateCcw} 
-        />
-        <ToolbarButton 
-          onClick={() => editor.chain().focus().redo().run()} 
-          icon={RotateCw} 
-        />
-
-        <div className="ml-auto flex gap-1">
-          <button 
-            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            className={`px-3 py-1 font-mono text-[10px] uppercase transition-subtle ${editor.isActive('heading', { level: 1 }) ? 'text-accent bg-accent/10' : 'text-soft-white/40 hover:text-soft-white'}`}
-          >
-            H1
+          <button onClick={handleExportHTML}
+            className="h-10 px-5 border border-border-subtle font-mono text-[10px] uppercase tracking-widest text-soft-white/60 hover:text-accent hover:border-accent/40 transition-subtle flex items-center gap-2">
+            <FileDown size={13} /> .html
           </button>
-          <button 
-            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            className={`px-3 py-1 font-mono text-[10px] uppercase transition-subtle ${editor.isActive('heading', { level: 2 }) ? 'text-accent bg-accent/10' : 'text-soft-white/40 hover:text-soft-white'}`}
-          >
-            H2
+          <button onClick={handlePrint}
+            className="h-10 px-5 border border-border-subtle font-mono text-[10px] uppercase tracking-widest text-soft-white/60 hover:text-accent hover:border-accent/40 transition-subtle flex items-center gap-2">
+            <Printer size={13} /> Print
           </button>
         </div>
       </div>
 
+      {/* ── Toolbar Row 1: Text formatting ──────────────── */}
+      <div className="sticky top-16 z-30 border border-border-subtle bg-[#0A0A0A]/95 backdrop-blur-md mb-1">
+        <div className="flex flex-wrap items-center gap-0.5 p-1">
+          <HeadingSelect editor={editor} />
+          <FontFamilySelect editor={editor} />
+          <TDivider />
+          <TBtn onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} icon={Bold} title="Bold" />
+          <TBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} icon={Italic} title="Italic" />
+          <TBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} icon={UnderlineIcon} title="Underline" />
+          <TBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} icon={Strikethrough} title="Strikethrough" />
+          <TBtn onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} icon={Code} title="Inline Code" />
+          <TBtn onClick={() => editor.chain().focus().toggleSubscript().run()} active={editor.isActive('subscript')} icon={SubIcon} title="Subscript" />
+          <TBtn onClick={() => editor.chain().focus().toggleSuperscript().run()} active={editor.isActive('superscript')} icon={SupIcon} title="Superscript" />
+          <TDivider />
+          <HighlightPicker editor={editor} />
+          <TextColorPicker editor={editor} />
+          <TDivider />
+          <LinkButton editor={editor} />
+          <ImageButton editor={editor} />
+          <TableControls editor={editor} />
+        </div>
+
+        {/* ── Toolbar Row 2: Alignment, lists, utilities ── */}
+        <div className="flex flex-wrap items-center gap-0.5 p-1 border-t border-border-subtle/50">
+          <TBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} icon={AlignLeft} title="Align Left" />
+          <TBtn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} icon={AlignCenter} title="Align Center" />
+          <TBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} icon={AlignRight} title="Align Right" />
+          <TBtn onClick={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} icon={AlignJustify} title="Justify" />
+          <TDivider />
+          <TBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} icon={List} title="Bullet List" />
+          <TBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} icon={ListOrdered} title="Ordered List" />
+          <TBtn onClick={() => editor.chain().focus().toggleTaskList().run()} active={editor.isActive('taskList')} icon={ListChecks} title="Task List" />
+          <TBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} icon={Quote} title="Blockquote" />
+          <TBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} icon={Minus} title="Horizontal Rule" />
+          <TBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} icon={Code} title="Code Block" />
+          <TDivider />
+          <TBtn onClick={() => editor.chain().focus().undo().run()} icon={RotateCcw} title="Undo" disabled={!editor.can().undo()} />
+          <TBtn onClick={() => editor.chain().focus().redo().run()} icon={RotateCw} title="Redo" disabled={!editor.can().redo()} />
+          <TDivider />
+          <TBtn onClick={() => setShowSearch(s => !s)} active={showSearch} icon={Search} title="Search & Replace (⌘F)" />
+          <TBtn onClick={handleClear} icon={Pilcrow} title="Clear Content" />
+
+          <div className="ml-auto flex items-center gap-3">
+            <span className="font-mono text-[9px] text-soft-white/30 uppercase tracking-wider">
+              {words} words · {chars} chars
+            </span>
+            <TBtn onClick={() => setIsFullscreen(f => !f)} icon={isFullscreen ? Minimize : Maximize} title="Toggle Fullscreen" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Search & Replace ────────────────────────────── */}
+      <SearchReplacePanel editor={editor} open={showSearch} onClose={() => setShowSearch(false)} />
+
+      {/* ── Drag overlay ────────────────────────────────── */}
+      {isDragActive && (
+        <div className="absolute inset-0 z-20 bg-accent/5 border-2 border-dashed border-accent/40 flex items-center justify-center pointer-events-none">
+          <span className="font-mono text-sm text-accent uppercase tracking-widest">Drop .docx file here</span>
+        </div>
+      )}
+
+      {/* ── Editor ──────────────────────────────────────── */}
       <EditorContent editor={editor} />
-      
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        className="hidden" 
-        accept=".docx" 
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onDrop([file]);
-        }} 
-      />
+
+      <input type="file" ref={fileInputRef} className="hidden" accept=".docx"
+        onChange={e => { const file = e.target.files?.[0]; if (file) onDrop([file]); }} />
     </div>
   );
 }
-
-const ToolbarButton = ({ onClick, active, icon: Icon }: { onClick: () => void, active?: boolean, icon: any }) => (
-  <button 
-    onClick={onClick}
-    className={`p-3 transition-subtle hover:bg-white/[0.05] ${active ? 'text-accent bg-accent/10' : 'text-soft-white/40'}`}
-  >
-    <Icon size={16} />
-  </button>
-);
