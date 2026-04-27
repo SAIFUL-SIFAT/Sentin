@@ -1,4 +1,4 @@
-# 🔒 Sentin — Privacy-First Browser Tools
+#  Sentin — Privacy-First Browser Tools
 
 <div align="center">
   <img src="src/app/icon.svg" width="80" height="80" alt="Sentin Logo" />
@@ -12,17 +12,14 @@
 
   <p>Edit documents, process PDFs, convert media, and manage security tools — all in your browser sandbox with <b>zero data exfiltration</b>.</p>
 
-  <a href="https://sentin.vercel.app"><strong>Explore the Demo »</strong></a>
+  <a href="https://sentin-tools.vercel.app"><strong>Explore the Demo »</strong></a>
   <br />
   <br />
-  <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSAIFUL-SIFAT%2FSentin">
-    <img src="https://vercel.com/button" alt="Deploy with Vercel" />
-  </a>
 </div>
 
 ---
 
-## 🛡️ Privacy First, Always
+##  Privacy First, Always
 
 Sentin is built on the absolute principle of **zero-upload processing**. 
 
@@ -31,30 +28,30 @@ Sentin is built on the absolute principle of **zero-upload processing**.
 - **No Tracking:** No accounts, no cookies, no telemetry. Your workflow remains completely anonymous and private.
 - **Offline Capable:** Once loaded, the tools function entirely without an internet connection.
 
-## ✨ Tool Ecosystem
+##  Tool Ecosystem
 
 Sentin provides a beautifully designed interface housing a powerful suite of utilities:
 
-### 📝 Documents
+###  Documents
 - **Word Editor:** Advanced rich text editing with `.docx` import/export, powered by `Tiptap`.
 - **Markdown Editor:** Professional markdown environment with real-time preview and GFM support.
 
-### 📄 PDF Suite
+###  PDF Suite
 - **Merge & Split:** Combine documents or extract pages locally using `pdf-lib`.
 - **Reorder Pages:** Visually reorganize PDF pages with drag-and-drop.
 - **Image to PDF:** Convert scans and photos into professional PDF documents.
 
-### 🖼️ Media
+###  Media
 - **Image Compressor:** Lossless optimization utilizing local Canvas API processing.
 - **Format Converter:** Cross-convert between JPEG, PNG, and WebP instantly.
 - **QR Generator:** Create secure, customizable QR codes offline.
 
-### 🔐 Security
+###  Security
 - **Password Generator:** Cryptographically strong password generation.
 - **Hash Tools:** Generate and analyze MD5/SHA hashes locally.
 - **JWT Decoder:** Inspect JSON Web Tokens without exposing sensitive claims.
 
-## 🚀 Getting Started
+##  Getting Started
 
 Sentin is built with **Next.js 15**, **React 19**, and **Tailwind CSS**.
 
@@ -76,14 +73,14 @@ Sentin is built with **Next.js 15**, **React 19**, and **Tailwind CSS**.
 
 4. **Open [http://localhost:3000](http://localhost:3000)** in your browser.
 
-## 🏗️ Architecture
+##  Architecture
 
 - **Framework:** Next.js (App Router)
 - **Styling:** Tailwind CSS (Glassmorphism design system)
 - **Animations:** Framer Motion
 - **Core Libs:** pdf-lib, docx, mammoth, tiptap, codemirror
 
-## 📜 License
+##  License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
