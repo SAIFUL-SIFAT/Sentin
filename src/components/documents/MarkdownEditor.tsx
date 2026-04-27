@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from 'react';
 import MDEditor from '@uiw/react-md-editor';
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 import { Download, FileText } from 'lucide-react';
 import { downloadBlob } from '@/lib/utils';
 
@@ -13,8 +15,8 @@ export default function MarkdownEditor() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-12">
-      <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-6">
+    <div className="max-w-6xl mx-auto px-6 py-6 md:py-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-border-subtle pb-6 gap-4">
         <div>
           <h2 className="text-4xl font-bold tracking-tighter">Markdown Editor</h2>
           <p className="font-mono text-[10px] uppercase text-soft-white/40 mt-1">Live preview • Local processing</p>

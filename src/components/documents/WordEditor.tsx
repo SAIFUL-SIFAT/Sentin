@@ -85,7 +85,7 @@ export default function WordEditor() {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[600px] p-12 focus:outline-none border border-border-subtle bg-white/[0.01] font-sans selection:bg-accent/30',
+        class: 'prose prose-invert max-w-none min-h-[600px] p-6 md:p-12 focus:outline-none border border-border-subtle bg-white/[0.01] font-sans selection:bg-accent/30',
       },
     },
   });
@@ -316,7 +316,7 @@ export default function WordEditor() {
       <input {...getInputProps()} />
 
       {/* ── Header ──────────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 border-b border-border-subtle pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 border-b border-border-subtle pb-6">
         <div>
           <h2 className="text-4xl font-heading font-bold tracking-tight mb-2">Word Editor</h2>
           <div className="flex items-center gap-4">
@@ -350,8 +350,8 @@ export default function WordEditor() {
       </div>
 
       {/* ── Toolbar Row 1: Text formatting ──────────────── */}
-      <div className="sticky top-16 z-30 border border-border-subtle bg-[#0A0A0A]/95 backdrop-blur-md mb-1">
-        <div className="flex flex-wrap items-center gap-0.5 p-1">
+      <div className="sticky top-16 z-30 border border-border-subtle bg-[#0A0A0A]/95 backdrop-blur-md mb-1 overflow-hidden">
+        <div className="flex flex-nowrap items-center gap-0.5 p-1 overflow-x-auto no-scrollbar">
           <HeadingSelect editor={editor} />
           <FontFamilySelect editor={editor} />
           <TDivider />
@@ -372,7 +372,7 @@ export default function WordEditor() {
         </div>
 
         {/* ── Toolbar Row 2: Alignment, lists, utilities ── */}
-        <div className="flex flex-wrap items-center gap-0.5 p-1 border-t border-border-subtle/50">
+        <div className="flex flex-nowrap items-center gap-0.5 p-1 border-t border-border-subtle/50 overflow-x-auto no-scrollbar">
           <TBtn onClick={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} icon={AlignLeft} title="Align Left" />
           <TBtn onClick={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} icon={AlignCenter} title="Align Center" />
           <TBtn onClick={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} icon={AlignRight} title="Align Right" />

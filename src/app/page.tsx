@@ -38,15 +38,15 @@ const PDFSplit = dynamic(() => import('@/components/Stub'), { ssr: false });
 const PDFViewer = dynamic(() => import('@/components/Stub'), { ssr: false });
 const ImageToPDF = dynamic(() => import('@/components/Stub'), { ssr: false });
 const CodeEditor = dynamic(() => import('@/components/Stub'), { ssr: false });
-const ImageCompressor = dynamic(() => import('@/components/Stub'), { ssr: false });
-const QRCodeGen = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
+const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
 const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false }); // Already pushed
 const HashGenerator = dynamic(() => import('@/components/Stub'), { ssr: false });
 const JSONFormatter = dynamic(() => import('@/components/Stub'), { ssr: false });
 const DiffChecker = dynamic(() => import('@/components/Stub'), { ssr: false });
-const ImageResizer = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageResizer = dynamic(() => import('@/components/media/ImageResizer'), { ssr: false });
 const HashAnalyzer = dynamic(() => import('@/components/Stub'), { ssr: false });
-const ImageConverter = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageConverter = dynamic(() => import('@/components/media/ImageConverter'), { ssr: false });
 const JWTDecoder = dynamic(() => import('@/components/Stub'), { ssr: false });
 const PDFReorder = dynamic(() => import('@/components/Stub'), { ssr: false });
 
