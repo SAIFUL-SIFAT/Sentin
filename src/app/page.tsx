@@ -31,25 +31,28 @@ import dynamic from 'next/dynamic';
 
 const WordEditor = dynamic(() => import('@/components/documents/WordEditor'), { ssr: false });
 const MarkdownEditor = dynamic(() => import('@/components/documents/MarkdownEditor'), { ssr: false });
-const PDFMerge = dynamic(() => import('@/components/pdf/PDFMerge'), { ssr: false });
-const PDFSplit = dynamic(() => import('@/components/pdf/PDFSplit'), { ssr: false });
-const PDFViewer = dynamic(() => import('@/components/pdf/PDFViewer'), { ssr: false });
-const ImageToPDF = dynamic(() => import('@/components/pdf/ImageToPDF'), { ssr: false });
-const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
-const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
-const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
-const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false });
-const HashGenerator = dynamic(() => import('@/components/security/HashGenerator'), { ssr: false });
-const JSONFormatter = dynamic(() => import('@/components/developer/JSONFormatter'), { ssr: false });
-const DiffChecker = dynamic(() => import('@/components/developer/DiffChecker'), { ssr: false });
-const ImageResizer = dynamic(() => import('@/components/media/ImageResizer'), { ssr: false });
-const HashAnalyzer = dynamic(() => import('@/components/security/HashAnalyzer'), { ssr: false });
-const ImageConverter = dynamic(() => import('@/components/media/ImageConverter'), { ssr: false });
-const JWTDecoder = dynamic(() => import('@/components/security/JWTDecoder'), { ssr: false });
-const PDFReorder = dynamic(() => import('@/components/pdf/PDFReorder'), { ssr: false });
+
+// Stubs for components not yet pushed to prevent build errors
+const PDFMerge = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFSplit = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFViewer = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageToPDF = dynamic(() => import('@/components/Stub'), { ssr: false });
+const CodeEditor = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageCompressor = dynamic(() => import('@/components/Stub'), { ssr: false });
+const QRCodeGen = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false }); // Already pushed
+const HashGenerator = dynamic(() => import('@/components/Stub'), { ssr: false });
+const JSONFormatter = dynamic(() => import('@/components/Stub'), { ssr: false });
+const DiffChecker = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageResizer = dynamic(() => import('@/components/Stub'), { ssr: false });
+const HashAnalyzer = dynamic(() => import('@/components/Stub'), { ssr: false });
+const ImageConverter = dynamic(() => import('@/components/Stub'), { ssr: false });
+const JWTDecoder = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFReorder = dynamic(() => import('@/components/Stub'), { ssr: false });
 
 
 import MacOSDock, { DockApp } from '@/components/ui/mac-os-dock';
+import MinimalistDock from '@/components/ui/minimal-dock';
 
 type View = string;
 
@@ -174,7 +177,7 @@ const ToolDock = ({ onOpenTool, currentView }: { onOpenTool: (v: View) => void, 
   }));
 
   return (
-    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] pointer-events-auto">
+    <div className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] pointer-events-auto hidden md:block">
       <MacOSDock 
         apps={dockApps} 
         onAppClick={(id) => {
@@ -215,13 +218,13 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
   };
 
   return (
-    <div className="relative pt-32 pb-24 px-6 lg:px-12 flex flex-col items-start text-left overflow-hidden">
+    <div className="relative pt-20 md:pt-32 pb-16 md:pb-24 px-6 lg:px-12 flex flex-col items-start text-left overflow-hidden">
       <div className="grid-background" />
       <motion.h1 
         variants={container}
         initial="hidden"
         animate="show"
-        className="text-[80px] lg:text-[110px] font-heading font-bold leading-[0.85] tracking-[-0.04em] mb-12"
+        className="text-[48px] sm:text-[64px] lg:text-[110px] font-heading font-bold leading-[0.9] lg:leading-[0.85] tracking-[-0.04em] mb-12"
       >
         <div className="overflow-hidden">
           <motion.div variants={item}>Edit documents<span className="text-accent">.</span></motion.div>
@@ -241,9 +244,9 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.8 }}
-        className="flex flex-col items-start gap-12"
+        className="flex flex-col items-start gap-8 md:gap-12"
       >
-        <p className="text-[17px] text-soft-white/80 max-w-[480px] leading-relaxed">
+        <p className="text-[15px] md:text-[17px] text-soft-white/80 max-w-[480px] leading-relaxed">
           Your files never leave your device. All tools run entirely in your browser using local resources. 
           Professional-grade editing with zero compromise on privacy.
         </p>
@@ -268,7 +271,7 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
 const ToolCard = ({ name, description, icon: Icon, onClick }: { name: string, description: string, icon: any, onClick: () => void }) => (
   <div 
     onClick={onClick}
-    className="group flex flex-col sm:flex-row sm:items-center justify-between p-8 lg:p-12 lg:pr-40 border-b border-border-subtle hover:bg-white/[0.02] transition-subtle cursor-pointer pr-32"
+    className="group flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 lg:p-12 md:pr-40 border-b border-border-subtle hover:bg-white/[0.02] transition-subtle cursor-pointer"
   >
     <div className="flex items-start gap-8 mb-6 sm:mb-0">
       <div className="p-4 border border-border-subtle group-hover:border-accent/40 group-hover:bg-accent/5 transition-subtle">
@@ -312,7 +315,7 @@ const ToolList = ({ onOpenTool, filterCategory }: { onOpenTool: (v: View) => voi
   
   return (
     <div className={filterCategory ? "-mx-6 lg:-mx-12 -mt-6 lg:-mt-12" : "mt-12 border-t border-border-subtle"}>
-      <div className="px-6 lg:px-12 lg:pr-40 pr-32 py-12 border-b border-border-subtle bg-white/[0.01]">
+      <div className="px-6 lg:px-12 md:pr-40 py-12 border-b border-border-subtle bg-white/[0.01]">
         <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-soft-white/40">
           {filterCategory ? `${categories.find(c => c.id === filterCategory)?.name} Utilities` : 'Available Utilities'}
         </span>
@@ -395,7 +398,7 @@ export default function Home() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className={`p-6 lg:p-12 ${view.startsWith('category:') ? '' : 'pr-32 lg:pr-48'}`}
+                className={`p-6 lg:p-12 pb-32 md:pb-12 ${view.startsWith('category:') ? '' : 'md:pr-32 lg:pr-48'}`}
               >
                 <button 
                   onClick={() => setView('home')}
@@ -437,6 +440,7 @@ export default function Home() {
         </main>
       </div>
       <ToolDock onOpenTool={setView} currentView={view} />
+      <MinimalistDock currentView={view} onViewChange={setView} />
     </>
   );
 }
