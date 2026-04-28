@@ -13,16 +13,40 @@ const ImageCompressor = () => {
   const [quality, setQuality] = useState([0.7]);
   const [isCompressing, setIsCompressing] = useState(false);
   const [stats, setStats] = useState({ original: 0, compressed: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const processFile = (selectedFile: File) => {
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    setCompressed(null);
+    setStats({ original: selectedFile.size, compressed: 0 });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      setCompressed(null);
-      setStats({ original: selectedFile.size, compressed: 0 });
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      processFile(selectedFile);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile && droppedFile.type.startsWith('image/')) {
+      processFile(droppedFile);
     }
   };
 
@@ -93,7 +117,10 @@ const ImageCompressor = () => {
           <Label className="font-mono text-[10px] uppercase tracking-widest text-soft-white/40">Source Image</Label>
           <div 
             onClick={() => !file && fileInputRef.current?.click()}
-            className={`relative aspect-square border-2 border-dashed flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden ${file ? 'border-border-subtle bg-white/[0.01]' : 'border-border-subtle/40 hover:border-accent/40 hover:bg-accent/5'}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`relative aspect-square border-2 border-dashed flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden ${isDragging ? 'border-accent bg-accent/10' : file ? 'border-border-subtle bg-white/[0.01]' : 'border-border-subtle/40 hover:border-accent/40 hover:bg-accent/5'}`}
           >
             {preview ? (
               <img src={preview} alt="Preview" className="w-full h-full object-contain p-4" />

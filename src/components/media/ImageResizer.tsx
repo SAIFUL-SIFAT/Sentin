@@ -15,24 +15,48 @@ const ImageResizer = () => {
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
   const [aspectRatio, setAspectRatio] = useState(1);
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const processFile = (selectedFile: File) => {
+    setFile(selectedFile);
+    const url = URL.createObjectURL(selectedFile);
+    setPreview(url);
+    setResized(null);
+
+    const img = new Image();
+    img.src = url;
+    img.onload = () => {
+      setOriginalDimensions({ width: img.width, height: img.height });
+      setDimensions({ width: img.width, height: img.height });
+      setAspectRatio(img.width / img.height);
+    };
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      const url = URL.createObjectURL(selectedFile);
-      setPreview(url);
-      setResized(null);
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      processFile(selectedFile);
+    }
+  };
 
-      const img = new Image();
-      img.src = url;
-      img.onload = () => {
-        setOriginalDimensions({ width: img.width, height: img.height });
-        setDimensions({ width: img.width, height: img.height });
-        setAspectRatio(img.width / img.height);
-      };
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile && droppedFile.type.startsWith('image/')) {
+      processFile(droppedFile);
     }
   };
 
@@ -122,7 +146,10 @@ const ImageResizer = () => {
           <Label className="font-mono text-[10px] uppercase tracking-widest text-soft-white/40">Preview</Label>
           <div 
             onClick={() => !file && fileInputRef.current?.click()}
-            className={`relative aspect-square border border-border-subtle flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden bg-white/[0.01] ${!file ? 'hover:border-accent/40 hover:bg-accent/5' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`relative aspect-square border flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden bg-white/[0.01] ${isDragging ? 'border-accent bg-accent/10' : file ? 'border-border-subtle' : 'border-border-subtle hover:border-accent/40 hover:bg-accent/5'}`}
           >
             {preview ? (
               <img src={preview} alt="Preview" className="w-full h-full object-contain p-8" />

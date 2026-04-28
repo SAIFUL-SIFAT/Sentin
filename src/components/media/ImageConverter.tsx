@@ -17,14 +17,38 @@ const ImageConverter = () => {
   const [converted, setConverted] = useState<string | null>(null);
   const [targetFormat, setTargetFormat] = useState(formats[0]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (selectedFile: File) => {
+    setFile(selectedFile);
+    setPreview(URL.createObjectURL(selectedFile));
+    setConverted(null);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-      setConverted(null);
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      processFile(selectedFile);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile && droppedFile.type.startsWith('image/')) {
+      processFile(droppedFile);
     }
   };
 
@@ -93,7 +117,10 @@ const ImageConverter = () => {
           <Label className="font-mono text-[10px] uppercase tracking-widest text-soft-white/40">Source Image</Label>
           <div 
             onClick={() => !file && fileInputRef.current?.click()}
-            className={`relative aspect-square border border-border-subtle flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden bg-white/[0.01] ${!file ? 'hover:border-accent/40 hover:bg-accent/5' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`relative aspect-square border flex flex-col items-center justify-center transition-subtle cursor-pointer overflow-hidden ${isDragging ? 'border-accent bg-accent/10' : file ? 'border-border-subtle bg-white/[0.01]' : 'border-border-subtle hover:border-accent/40 hover:bg-accent/5 bg-white/[0.01]'}`}
           >
             {preview ? (
               <img src={preview} alt="Preview" className="w-full h-full object-contain p-8" />
