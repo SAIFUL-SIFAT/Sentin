@@ -1,4 +1,4 @@
-#  Sentin — Privacy-First Browser Tools
+# Sentin — Privacy-First Browser Tools
 
 <div align="center">
   <img src="src/app/icon.svg" width="80" height="80" alt="Sentin Logo" />
@@ -19,7 +19,17 @@
 
 ---
 
-##  Privacy First, Always
+## Table of Contents
+
+- [Privacy First, Always](#privacy-first-always)
+- [Why Sentin Exists](#why-sentin-exists)
+- [Tool Ecosystem](#tool-ecosystem)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Architecture](#architecture)
+- [License](#license)
+
+## Privacy First, Always
 
 Sentin is built on the absolute principle of **zero-upload processing**. 
 
@@ -28,30 +38,64 @@ Sentin is built on the absolute principle of **zero-upload processing**.
 - **No Tracking:** No accounts, no cookies, no telemetry. Your workflow remains completely anonymous and private.
 - **Offline Capable:** Once loaded, the tools function entirely without an internet connection.
 
-##  Tool Ecosystem
+## Why Sentin Exists
+
+Modern productivity tools are fragmented and often restrictive.
+
+- Users across **macOS, Linux, and Windows** face compatibility limitations with traditional software.
+- Tasks like document editing, PDF processing, and media conversion often require **multiple separate tools**.
+- Many platforms enforce **logins, subscriptions, or uploads**, introducing friction and privacy risks.
+- Finding a reliable and fast tool for simple workflows becomes unnecessarily time-consuming.
+
+Sentin addresses these challenges by consolidating essential tools into a single platform.
+
+- A unified suite for documents, PDFs, media, and security
+- No login requirements or data uploads
+- Fully client-side execution for maximum privacy
+- Offline-capable after initial load
+
+This approach ensures a streamlined, secure, and efficient workflow without compromising user data.
+
+## Tool Ecosystem
 
 Sentin provides a beautifully designed interface housing a powerful suite of utilities:
 
-###  Documents
+### Documents
 - **Word Editor:** Advanced rich text editing with `.docx` import/export, powered by `Tiptap`.
 - **Markdown Editor:** Professional markdown environment with real-time preview and GFM support.
 
-###  PDF Suite
+### PDF Suite
 - **Merge & Split:** Combine documents or extract pages locally using `pdf-lib`.
 - **Reorder Pages:** Visually reorganize PDF pages with drag-and-drop.
 - **Image to PDF:** Convert scans and photos into professional PDF documents.
 
-###  Media
+### Media
 - **Image Compressor:** Lossless optimization utilizing local Canvas API processing.
 - **Format Converter:** Cross-convert between JPEG, PNG, and WebP instantly.
 - **QR Generator:** Create secure, customizable QR codes offline.
 
-###  Security
+### Security
 - **Password Generator:** Cryptographically strong password generation.
 - **Hash Tools:** Generate and analyze MD5/SHA hashes locally.
 - **JWT Decoder:** Inspect JSON Web Tokens without exposing sensitive claims.
 
-##  Getting Started
+## Project Structure
+
+The project follows a modular and scalable structure using the Next.js App Router:
+
+```text
+src/
+├── app/          # Application routes and pages (App Router)
+├── components/   # Reusable UI components
+├── features/     # Core tool modules (PDF, Media, Documents, Security)
+├── lib/          # Utility functions and processing logic
+├── hooks/        # Custom React hooks
+└── styles/       # Global styles and Tailwind configuration
+```
+
+This structure ensures clear separation of concerns, making the codebase maintainable and easy to extend.
+
+## Getting Started
 
 Sentin is built with **Next.js 15**, **React 19**, and **Tailwind CSS**.
 
@@ -73,14 +117,14 @@ Sentin is built with **Next.js 15**, **React 19**, and **Tailwind CSS**.
 
 4. **Open [http://localhost:3000](http://localhost:3000)** in your browser.
 
-##  Architecture
+## Architecture
 
 - **Framework:** Next.js (App Router)
 - **Styling:** Tailwind CSS (Glassmorphism design system)
 - **Animations:** Framer Motion
 - **Core Libs:** pdf-lib, docx, mammoth, tiptap, codemirror
 
-##  License
+## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
