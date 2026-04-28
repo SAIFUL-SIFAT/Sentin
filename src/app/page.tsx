@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  FileText, 
-  FileCode, 
-  Files, 
-  ArrowLeft, 
-  Download, 
-  Plus, 
-  Github, 
+import {
+  FileText,
+  FileCode,
+  Files,
+  ArrowLeft,
+  Download,
+  Plus,
+  Github,
   Info,
   ExternalLink,
   Zap,
@@ -37,13 +37,13 @@ const PDFMerge = dynamic(() => import('@/components/Stub'), { ssr: false });
 const PDFSplit = dynamic(() => import('@/components/Stub'), { ssr: false });
 const PDFViewer = dynamic(() => import('@/components/Stub'), { ssr: false });
 const ImageToPDF = dynamic(() => import('@/components/Stub'), { ssr: false });
-const CodeEditor = dynamic(() => import('@/components/Stub'), { ssr: false });
+const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
 const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
 const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
 const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false }); // Already pushed
 const HashGenerator = dynamic(() => import('@/components/security/HashGenerator'), { ssr: false });
-const JSONFormatter = dynamic(() => import('@/components/Stub'), { ssr: false });
-const DiffChecker = dynamic(() => import('@/components/Stub'), { ssr: false });
+const JSONFormatter = dynamic(() => import('@/components/developer/JSONFormatter'), { ssr: false });
+const DiffChecker = dynamic(() => import('@/components/developer/DiffChecker'), { ssr: false });
 const ImageResizer = dynamic(() => import('@/components/media/ImageResizer'), { ssr: false });
 const HashAnalyzer = dynamic(() => import('@/components/security/HashAnalyzer'), { ssr: false });
 const ImageConverter = dynamic(() => import('@/components/media/ImageConverter'), { ssr: false });
@@ -178,11 +178,11 @@ const ToolDock = ({ onOpenTool, currentView }: { onOpenTool: (v: View) => void, 
 
   return (
     <div className="fixed right-8 top-1/2 -translate-y-1/2 z-[100] pointer-events-auto hidden md:block">
-      <MacOSDock 
-        apps={dockApps} 
+      <MacOSDock
+        apps={dockApps}
         onAppClick={(id) => {
           onOpenTool(`category:${id}`);
-        }} 
+        }}
         onAppHover={(id, isHovering) => {
           if (isHovering) {
             handleMouseEnter(id);
@@ -207,20 +207,20 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
 
   const item: Variants = {
     hidden: { y: 100, opacity: 0 },
-    show: { 
-      y: 0, 
-      opacity: 1, 
-      transition: { 
-        duration: 0.8, 
-        ease: [0.16, 1, 0.3, 1] 
-      } 
+    show: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1]
+      }
     },
   };
 
   return (
     <div className="relative pt-20 md:pt-32 pb-16 md:pb-24 px-6 lg:px-12 flex flex-col items-start text-left overflow-hidden">
       <div className="grid-background" />
-      <motion.h1 
+      <motion.h1
         variants={container}
         initial="hidden"
         animate="show"
@@ -239,7 +239,7 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
           <motion.div variants={item}>No uploads<span className="text-accent">.</span></motion.div>
         </div>
       </motion.h1>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -247,12 +247,12 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
         className="flex flex-col items-start gap-8 md:gap-12"
       >
         <p className="text-[15px] md:text-[17px] text-soft-white/80 max-w-[480px] leading-relaxed">
-          Your files never leave your device. All tools run entirely in your browser using local resources. 
+          Your files never leave your device. All tools run entirely in your browser using local resources.
           Professional-grade editing with zero compromise on privacy.
         </p>
 
         <div className="flex items-center gap-8">
-          <button 
+          <button
             onClick={() => onOpenTool('word')}
             className="text-accent hover:text-accent/80 transition-subtle font-mono text-xs uppercase tracking-[0.2em] flex items-center gap-2"
           >
@@ -269,7 +269,7 @@ const Hero = ({ onOpenTool }: { onOpenTool: (v: View) => void }) => {
 };
 
 const ToolCard = ({ name, description, icon: Icon, onClick }: { name: string, description: string, icon: any, onClick: () => void }) => (
-  <div 
+  <div
     onClick={onClick}
     className="group flex flex-col md:flex-row md:items-center justify-between p-6 md:p-8 lg:p-12 md:pr-40 border-b border-border-subtle hover:bg-white/[0.02] transition-subtle cursor-pointer"
   >
@@ -312,7 +312,7 @@ const ALL_TOOLS = [
 
 const ToolList = ({ onOpenTool, filterCategory }: { onOpenTool: (v: View) => void, filterCategory?: string }) => {
   const toolsToShow = filterCategory ? ALL_TOOLS.filter(t => t.category === filterCategory) : ALL_TOOLS;
-  
+
   return (
     <div className={filterCategory ? "-mx-6 lg:-mx-12 -mt-6 lg:-mt-12" : "mt-12 border-t border-border-subtle"}>
       <div className="px-6 lg:px-12 md:pr-40 py-12 border-b border-border-subtle bg-white/[0.01]">
@@ -321,11 +321,11 @@ const ToolList = ({ onOpenTool, filterCategory }: { onOpenTool: (v: View) => voi
         </span>
       </div>
       {toolsToShow.map(tool => (
-        <ToolCard 
+        <ToolCard
           key={tool.id}
-          name={tool.name} 
-          description={tool.description} 
-          icon={tool.icon} 
+          name={tool.name}
+          description={tool.description}
+          icon={tool.icon}
           onClick={() => onOpenTool(tool.id)}
         />
       ))}
@@ -368,7 +368,7 @@ export default function Home() {
                 transition={{ duration: 0.4 }}
               >
                 <Hero onOpenTool={setView} />
-                
+
                 <footer className="px-6 lg:px-12 py-16 border-t border-border-subtle flex flex-col lg:flex-row lg:items-center justify-between gap-12 text-soft-white/40 text-[10px] font-mono uppercase tracking-[0.2em]">
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-2">
@@ -400,14 +400,14 @@ export default function Home() {
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className={`p-6 lg:p-12 pb-32 md:pb-12 ${view.startsWith('category:') ? '' : 'md:pr-32 lg:pr-48'}`}
               >
-                <button 
+                <button
                   onClick={() => setView('home')}
                   className="mb-12 flex items-center gap-3 text-soft-white/40 hover:text-accent transition-subtle font-mono text-[10px] uppercase tracking-[0.2em]"
                 >
                   <ArrowLeft size={14} />
                   [ Back to Dashboard ]
                 </button>
-                
+
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                   {view.startsWith('category:') ? (
                     <ToolList onOpenTool={setView} filterCategory={view.split(':')[1]} />
