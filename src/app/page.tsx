@@ -34,7 +34,7 @@ const MarkdownEditor = dynamic(() => import('@/components/documents/MarkdownEdit
 
 // Stubs for components not yet pushed to prevent build errors
 const PDFMerge = dynamic(() => import('@/components/pdf/PDFMerge'), { ssr: false });
-const PDFSplit = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFSplit = dynamic(() => import('@/components/pdf/PDFSplit'), { ssr: false });
 const PDFViewer = dynamic(() => import('@/components/pdf/PDFViewer'), { ssr: false });
 const ImageToPDF = dynamic(() => import('@/components/pdf/ImageToPDF'), { ssr: false });
 const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
