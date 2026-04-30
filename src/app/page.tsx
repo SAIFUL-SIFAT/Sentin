@@ -33,10 +33,10 @@ const WordEditor = dynamic(() => import('@/components/documents/WordEditor'), { 
 const MarkdownEditor = dynamic(() => import('@/components/documents/MarkdownEditor'), { ssr: false });
 
 // Stubs for components not yet pushed to prevent build errors
-const PDFMerge = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFMerge = dynamic(() => import('@/components/pdf/PDFMerge'), { ssr: false });
 const PDFSplit = dynamic(() => import('@/components/Stub'), { ssr: false });
-const PDFViewer = dynamic(() => import('@/components/Stub'), { ssr: false });
-const ImageToPDF = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFViewer = dynamic(() => import('@/components/pdf/PDFViewer'), { ssr: false });
+const ImageToPDF = dynamic(() => import('@/components/pdf/ImageToPDF'), { ssr: false });
 const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
 const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
 const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
