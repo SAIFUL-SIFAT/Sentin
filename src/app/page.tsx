@@ -48,7 +48,7 @@ const ImageResizer = dynamic(() => import('@/components/media/ImageResizer'), { 
 const HashAnalyzer = dynamic(() => import('@/components/security/HashAnalyzer'), { ssr: false });
 const ImageConverter = dynamic(() => import('@/components/media/ImageConverter'), { ssr: false });
 const JWTDecoder = dynamic(() => import('@/components/security/JWTDecoder'), { ssr: false });
-const PDFReorder = dynamic(() => import('@/components/Stub'), { ssr: false });
+const PDFReorder = dynamic(() => import('@/components/pdf/PDFReorder'), { ssr: false });
 
 
 import MacOSDock, { DockApp } from '@/components/ui/mac-os-dock';
