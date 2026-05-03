@@ -40,7 +40,7 @@ const ImageToPDF = dynamic(() => import('@/components/pdf/ImageToPDF'), { ssr: f
 const CodeEditor = dynamic(() => import('@/components/developer/CodeEditor'), { ssr: false });
 const ImageCompressor = dynamic(() => import('@/components/media/ImageCompressor'), { ssr: false });
 const QRCodeGen = dynamic(() => import('@/components/media/QRCodeGen'), { ssr: false });
-const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false }); // Already pushed
+const PasswordGen = dynamic(() => import('@/components/security/PasswordGen'), { ssr: false });
 const HashGenerator = dynamic(() => import('@/components/security/HashGenerator'), { ssr: false });
 const JSONFormatter = dynamic(() => import('@/components/developer/JSONFormatter'), { ssr: false });
 const DiffChecker = dynamic(() => import('@/components/developer/DiffChecker'), { ssr: false });
